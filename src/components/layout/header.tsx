@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Globe,
   Heart,
   Menu,
   Search,
@@ -19,10 +20,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { MobileNav } from "./mobile-nav";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { useCurrency, currencies } from "@/context/currency-context";
 
 const navLinks = [
   { href: "/products", label: "Products" },
@@ -33,6 +37,7 @@ const navLinks = [
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const { currency, setCurrency } = useCurrency();
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -78,7 +83,34 @@ export default function Header() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input type="search" placeholder="Search..." className="pl-9" />
           </div>
-          <nav className="flex items-center space-x-2">
+          <nav className="flex items-center space-x-1">
+             <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Globe className="h-5 w-5" />
+                  <span className="sr-only">Change currency</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Select Currency</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup
+                  value={currency.code}
+                  onValueChange={(code) => {
+                    const newCurrency = currencies.find(c => c.code === code);
+                    if (newCurrency) {
+                      setCurrency(newCurrency);
+                    }
+                  }}
+                >
+                  {currencies.map((c) => (
+                    <DropdownMenuRadioItem key={c.code} value={c.code}>
+                      {c.code} ({c.symbol})
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="ghost" size="icon">
               <Heart className="h-5 w-5" />
               <span className="sr-only">Wishlist</span>

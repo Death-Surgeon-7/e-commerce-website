@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Star, ShoppingCart } from "lucide-react";
@@ -14,7 +16,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { useCurrency } from "@/context/currency-context";
 
 interface ProductCardProps {
   product: Product;
@@ -22,6 +25,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const placeholder = getPlaceholderImage(product.image);
+  const { formatPrice } = useCurrency();
 
   return (
     <Card className="flex flex-col overflow-hidden transition-all hover:shadow-lg">

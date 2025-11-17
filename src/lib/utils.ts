@@ -5,9 +5,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const formatPrice = (amount: number) =>
-  new Intl.NumberFormat("en-IN", {
+// This function is kept for server-side rendering where context is not available.
+// The default will be INR.
+export const formatPrice = (
+  amount: number,
+  currency = "INR",
+  locale = "en-IN"
+) =>
+  new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "INR",
+    currency,
     minimumFractionDigits: 0,
   }).format(amount);
