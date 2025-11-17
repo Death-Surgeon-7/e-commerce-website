@@ -65,11 +65,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex items-baseline gap-2">
           {product.discount ? (
             <>
-              <p className="text-xl font-bold text-primary">${product.discount.toFixed(2)}</p>
-              <p className="text-sm text-muted-foreground line-through">${product.price.toFixed(2)}</p>
+              <p className="text-xl font-bold text-primary">₹{product.discount.toFixed(2)}</p>
+              <p className="text-sm text-muted-foreground line-through">₹{product.price.toFixed(2)}</p>
             </>
           ) : (
-            <p className="text-xl font-bold text-foreground">${product.price.toFixed(2)}</p>
+            <p className="text-xl font-bold text-foreground">₹{product.price.toFixed(2)}</p>
           )}
         </div>
         <Button size="sm" variant="outline">
