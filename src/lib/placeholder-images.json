@@ -1,3 +1,106 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-1",
+      "description": "Stylish man in urban setting",
+      "imageUrl": "https://images.unsplash.com/photo-1598798918315-e954298ef4cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzdHlsaXNoJTIwbWFufGVufDB8fHx8MTc2MzM3NTE0OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "stylish man"
+    },
+    {
+      "id": "category-t-shirts",
+      "description": "A collection of modern t-shirts",
+      "imageUrl": "https://images.unsplash.com/photo-1693443688057-85f57b872a3c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0LXNoaXJ0c3xlbnwwfHx8fDE3NjMzNzUxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "t-shirts"
+    },
+    {
+      "id": "category-shirts",
+      "description": "A collection of formal and casual shirts",
+      "imageUrl": "https://images.unsplash.com/photo-1650632784494-7b6d1960113f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZHJlc3MlMjBzaGlydHN8ZW58MHx8fHwxNzYzMzc1MTQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dress shirts"
+    },
+    {
+      "id": "category-jeans",
+      "description": "A collection of denim jeans",
+      "imageUrl": "https://images.unsplash.com/photo-1713880442898-0f151fba5e16?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxkZW5pbSUyMGplYW5zfGVufDB8fHx8MTc2MzI3NjY4OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "denim jeans"
+    },
+    {
+      "id": "category-jackets",
+      "description": "A collection of stylish jackets",
+      "imageUrl": "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtZW4lMjBqYWNrZXR8ZW58MHx8fHwxNzYzMzI1MjUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "men jacket"
+    },
+    {
+      "id": "category-accessories",
+      "description": "A collection of men's accessories",
+      "imageUrl": "https://images.unsplash.com/3/www.madebyvadim.com.jpg?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtZW4lMjBhY2Nlc3Nvcmllc3xlbnwwfHx8fDE3NjMzNjU4NTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "men accessories"
+    },
+    {
+      "id": "product-1",
+      "description": "A graphic t-shirt",
+      "imageUrl": "https://images.unsplash.com/photo-1655141559952-de52ac91617e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxncmFwaGljJTIwdC1zaGlydHxlbnwwfHx8fDE3NjMzNjM0Njd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "graphic t-shirt"
+    },
+    {
+      "id": "product-2",
+      "description": "A classic denim jacket",
+      "imageUrl": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZW5pbSUyMGphY2tldHxlbnwwfHx8fDE3NjMyNjY0NTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "denim jacket"
+    },
+    {
+      "id": "product-3",
+      "description": "Slim fit chino pants",
+      "imageUrl": "https://images.unsplash.com/photo-1584865288642-42078afe6942?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjaGlubyUyMHBhbnRzfGVufDB8fHx8MTc2MzM3NTE0OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chino pants"
+    },
+    {
+      "id": "product-4",
+      "description": "A formal blue shirt",
+      "imageUrl": "https://images.unsplash.com/photo-1602810319428-019690571b5b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmb3JtYWwlMjBzaGlydHxlbnwwfHx8fDE3NjMyNTQ4MDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "formal shirt"
+    },
+    {
+      "id": "product-5",
+      "description": "A leather belt",
+      "imageUrl": "https://images.unsplash.com/photo-1705493655920-20c572928501?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxsZWF0aGVyJTIwYmVsdHxlbnwwfHx8fDE3NjMyNjY0NTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "leather belt"
+    },
+    {
+      "id": "product-6",
+      "description": "Ripped denim jeans",
+      "imageUrl": "https://images.unsplash.com/photo-1490551537373-f7a2d1f6fa82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyaXBwZWQlMjBqZWFuc3xlbnwwfHx8fDE3NjMzMDE4Njd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ripped jeans"
+    },
+    {
+      "id": "product-7",
+      "description": "A cool hoodie",
+      "imageUrl": "https://images.unsplash.com/photo-1537006664250-53dc386a3a1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtZW4lMjBob29kaWV8ZW58MHx8fHwxNzYzMzc1MTQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "men hoodie"
+    },
+    {
+      "id": "product-8",
+      "description": "A beanie hat",
+      "imageUrl": "https://images.unsplash.com/photo-1605894631816-37f383bafa99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiZWFuaWUlMjBoYXR8ZW58MHx8fHwxNzYzMzMzNzk5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "beanie hat"
+    },
+    {
+      "id": "avatar-1",
+      "description": "Avatar of a male user",
+      "imageUrl": "https://images.unsplash.com/flagged/photo-1595514191830-3e96a518989b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxtYWxlJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYzMzQxMjQ3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "male portrait"
+    },
+    {
+      "id": "avatar-2",
+      "description": "Avatar of a male user",
+      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW4lMjBmYWNlfGVufDB8fHx8MTc2MzM1MTE0MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man face"
+    },
+    {
+      "id": "avatar-3",
+      "description": "Avatar of a male user",
+      "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwcm9maWxlJTIwcGljdHVyZXxlbnwwfHx8fDE3NjMyODYxNjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "profile picture"
+    }
+  ]
 }
