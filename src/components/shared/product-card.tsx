@@ -22,6 +22,13 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const placeholder = getPlaceholderImage(product.image);
+  
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(price);
+  };
 
   return (
     <Card className="flex flex-col overflow-hidden transition-all hover:shadow-lg">
@@ -65,11 +72,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex items-baseline gap-2">
           {product.discount ? (
             <>
-              <p className="text-xl font-bold text-primary">₹{product.discount.toFixed(2)}</p>
-              <p className="text-sm text-muted-foreground line-through">₹{product.price.toFixed(2)}</p>
+              <p className="text-xl font-bold text-primary">{formatPrice(product.discount)}</p>
+              <p className="text-sm text-muted-foreground line-through">{formatPrice(product.price)}</p>
             </>
           ) : (
-            <p className="text-xl font-bold text-foreground">₹{product.price.toFixed(2)}</p>
+            <p className="text-xl font-bold text-foreground">{formatPrice(product.price)}</p>
           )}
         </div>
         <Button size="sm" variant="outline">
