@@ -11,6 +11,8 @@ import {
 import { useEffect, useState, useMemo } from 'react';
 
 import { useFirestore } from '..';
+import { errorEmitter } from '../error-emitter';
+import { FirestorePermissionError } from '../errors';
 
 function useCollection<T>(path: string, q?: Query): [T[], boolean] {
   const [data, setData] = useState<T[]>([]);
@@ -43,7 +45,11 @@ function useCollection<T>(path: string, q?: Query): [T[], boolean] {
         setLoading(false);
       },
       (error: FirestoreError) => {
-        console.error(`Error fetching collection: ${error.message}`);
+        const permissionError = new FirestorePermissionError({
+            path: (finalQuery as Query).path,
+            operation: 'list',
+          });
+        errorEmitter.emit('permission-error', permissionError);
         setLoading(false);
       }
     );

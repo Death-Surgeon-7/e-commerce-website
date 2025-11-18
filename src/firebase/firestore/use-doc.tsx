@@ -9,6 +9,8 @@ import {
 import { useEffect, useState, useMemo } from 'react';
 
 import { useFirestore } from '..';
+import { errorEmitter } from '../error-emitter';
+import { FirestorePermissionError } from '../errors';
 
 function useDoc<T>(path: string, id: string): [T | null, boolean] {
   const [data, setData] = useState<T | null>(null);
@@ -41,7 +43,11 @@ function useDoc<T>(path: string, id: string): [T | null, boolean] {
         setLoading(false);
       },
       (error: FirestoreError) => {
-        console.error(`Error fetching document: ${error.message}`);
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'get',
+        });
+        errorEmitter.emit('permission-error', permissionError);
         setData(null);
         setLoading(false);
       }
