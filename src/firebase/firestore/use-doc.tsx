@@ -16,7 +16,8 @@ function useDoc<T>(path: string, id: string): [T | null, boolean] {
   const firestore = useFirestore();
 
   const docRef = useMemo(
-    () => (firestore ? (doc(firestore, path, id) as DocumentReference<T>) : null),
+    () =>
+      firestore ? (doc(firestore, path, id) as DocumentReference<T>) : null,
     [firestore, path, id]
   );
 

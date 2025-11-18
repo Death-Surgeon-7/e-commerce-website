@@ -6,8 +6,9 @@ import {
   query,
   Query,
   FirestoreError,
+  CollectionReference,
 } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 import { useFirestore } from '..';
 
@@ -16,15 +17,21 @@ function useCollection<T>(path: string, q?: Query): [T[], boolean] {
   const [loading, setLoading] = useState<boolean>(true);
   const firestore = useFirestore();
 
+  const finalQuery = useMemo(() => {
+    if (!firestore) return null;
+    const collectionRef = collection(firestore, path) as CollectionReference<T>;
+    return q || query(collectionRef);
+  }, [firestore, path, q]);
+
   useEffect(() => {
-    if (!firestore) {
-      setLoading(false);
+    if (!finalQuery) {
+      if (firestore) {
+        setLoading(false);
+      }
       return;
     }
 
-    const collectionRef = collection(firestore, path);
-    const finalQuery = q || query(collectionRef);
-
+    setLoading(true);
     const unsubscribe = onSnapshot(
       finalQuery,
       (snapshot) => {
@@ -42,7 +49,7 @@ function useCollection<T>(path: string, q?: Query): [T[], boolean] {
     );
 
     return () => unsubscribe();
-  }, [firestore, path, q]);
+  }, [firestore, finalQuery]);
 
   return [data, loading];
 }
