@@ -31,6 +31,7 @@ export interface UserProfile {
   displayName: string | null;
   photoURL: string | null;
   createdAt: Timestamp;
+  role: 'admin' | 'customer';
 }
 
 export interface CartItem {

@@ -9,7 +9,7 @@ import {
   signInWithPopup,
   User,
 } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, getDocs, collection, query, limit } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,12 +37,19 @@ export default function SignupPage() {
 
   const createUserProfile = async (user: User) => {
     if (!firestore) return;
+
+    // Check if this is the first user
+    const usersQuery = query(collection(firestore, 'users'), limit(1));
+    const usersSnapshot = await getDocs(usersQuery);
+    const isFirstUser = usersSnapshot.empty;
+
     const userRef = doc(firestore, 'users', user.uid);
     const userProfile: Omit<UserProfile, 'createdAt'> = {
       uid: user.uid,
       email: user.email!,
       displayName: user.displayName || null,
       photoURL: user.photoURL || null,
+      role: isFirstUser ? 'admin' : 'customer',
     };
     await setDoc(userRef, {
       ...userProfile,
@@ -94,9 +101,6 @@ export default function SignupPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      // Check if user profile already exists
-      // This is a simplification. In a real app, you might want to merge data
-      // or handle this case more gracefully. For now, we'll just create it.
       await createUserProfile(result.user);
       toast({
         title: 'Sign-in Successful',
