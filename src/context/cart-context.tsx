@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
@@ -5,6 +6,8 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase
 import { useFirestore, useUser } from '@/firebase';
 import { CartItem, Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -40,15 +43,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setCartItems(items);
     } catch (error) {
       console.error("Error fetching cart items: ", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Could not fetch cart items."
-      });
     } finally {
       setLoading(false);
     }
-  }, [user, firestore, toast]);
+  }, [user, firestore]);
 
   useEffect(() => {
     fetchCartItems();
@@ -56,24 +54,46 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const removeFromCart = useCallback(async (cartItemId: string) => {
     if (!user || !firestore) return;
-    try {
-      const cartCollectionRef = collection(firestore, 'users', user.uid, 'cart');
-      const itemDoc = doc(cartCollectionRef, cartItemId);
-      await deleteDoc(itemDoc);
-      await fetchCartItems(); // Refetch after modification
-      toast({
-        title: "Item removed",
-        description: "The item has been removed from your cart."
+    const itemDocRef = doc(firestore, 'users', user.uid, 'cart', cartItemId);
+    deleteDoc(itemDocRef)
+      .then(() => {
+        fetchCartItems(); // Refetch after modification
+        toast({
+          title: "Item removed",
+          description: "The item has been removed from your cart."
+        });
+      })
+      .catch(serverError => {
+        const permissionError = new FirestorePermissionError({
+          path: itemDocRef.path,
+          operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
-    } catch (error) {
-      console.error("Error removing from cart: ", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Could not remove item from cart."
-      });
-    }
   }, [user, firestore, toast, fetchCartItems]);
+
+  const updateQuantity = useCallback(async (cartItemId: string, newQuantity: number) => {
+    if (!user || !firestore) return;
+
+    if (newQuantity <= 0) {
+      await removeFromCart(cartItemId);
+    } else {
+      const itemDocRef = doc(firestore, 'users', user.uid, 'cart', cartItemId);
+      const updatedData = { quantity: newQuantity };
+      updateDoc(itemDocRef, updatedData)
+        .then(() => {
+          fetchCartItems(); // Refetch after modification
+        })
+        .catch(serverError => {
+          const permissionError = new FirestorePermissionError({
+            path: itemDocRef.path,
+            operation: 'update',
+            requestResourceData: updatedData
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        });
+    }
+  }, [user, firestore, fetchCartItems, removeFromCart]);
 
   const addToCart = useCallback(async (product: Product, quantity = 1) => {
     if (!user || !firestore) {
@@ -88,55 +108,52 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const cartCollectionRef = collection(firestore, 'users', user.uid, 'cart');
     const existingItem = cartItems.find(item => item.productId === product.id);
 
-    try {
-      if (existingItem) {
-        const newQuantity = existingItem.quantity + quantity;
-        const itemDoc = doc(cartCollectionRef, existingItem.id);
-        await updateDoc(itemDoc, { quantity: newQuantity });
-      } else {
-        await addDoc(cartCollectionRef, {
-          productId: product.id,
-          name: product.name,
-          price: product.discount ?? product.price,
-          image: product.image,
-          quantity: quantity,
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + quantity;
+      const itemDocRef = doc(cartCollectionRef, existingItem.id);
+      const updatedData = { quantity: newQuantity };
+      updateDoc(itemDocRef, updatedData)
+      .then(() => {
+        fetchCartItems();
+        toast({
+          title: "Cart updated",
+          description: `${product.name} has been added to your cart.`
         });
-      }
-      await fetchCartItems(); // Refetch after modification
-      toast({
-        title: "Cart updated",
-        description: `${product.name} has been added to your cart.`
+      })
+      .catch(serverError => {
+        const permissionError = new FirestorePermissionError({
+          path: itemDocRef.path,
+          operation: 'update',
+          requestResourceData: updatedData
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
-    } catch (error) {
-      console.error("Error adding to cart: ", error);
-       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Could not add item to cart.",
+    } else {
+      const newItemData = {
+        productId: product.id,
+        name: product.name,
+        price: product.discount ?? product.price,
+        image: product.image,
+        quantity: quantity,
+      };
+      addDoc(cartCollectionRef, newItemData)
+      .then(() => {
+        fetchCartItems();
+        toast({
+          title: "Cart updated",
+          description: `${product.name} has been added to your cart.`
+        });
+      })
+      .catch(serverError => {
+        const permissionError = new FirestorePermissionError({
+          path: cartCollectionRef.path,
+          operation: 'create',
+          requestResourceData: newItemData
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
     }
   }, [user, firestore, cartItems, toast, fetchCartItems]);
-
-  const updateQuantity = useCallback(async (cartItemId: string, newQuantity: number) => {
-    if (!user || !firestore) return;
-
-    if (newQuantity <= 0) {
-      await removeFromCart(cartItemId);
-    } else {
-      try {
-        const itemDoc = doc(firestore, 'users', user.uid, 'cart', cartItemId);
-        await updateDoc(itemDoc, { quantity: newQuantity });
-        await fetchCartItems(); // Refetch after modification
-      } catch (error) {
-        console.error("Error updating quantity: ", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Could not update item quantity."
-        });
-      }
-    }
-  }, [user, firestore, toast, fetchCartItems, removeFromCart]);
 
   const cartTotal = useMemo(() => cartItems.reduce((total, item) => total + item.price * item.quantity, 0), [cartItems]);
   const cartCount = useMemo(() => cartItems.reduce((count, item) => count + item.quantity, 0), [cartItems]);
