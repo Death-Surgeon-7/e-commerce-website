@@ -7,8 +7,10 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  User,
 } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { useAuth, useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,13 +24,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Chrome } from 'lucide-react';
+import { UserProfile } from '@/lib/types';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
+
+  const createUserProfile = async (user: User) => {
+    if (!firestore) return;
+    const userRef = doc(firestore, 'users', user.uid);
+    const userProfile: Omit<UserProfile, 'createdAt'> = {
+      uid: user.uid,
+      email: user.email!,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+    };
+    await setDoc(userRef, {
+      ...userProfile,
+      createdAt: serverTimestamp(),
+    });
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +63,12 @@ export default function SignupPage() {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      await createUserProfile(userCredential.user);
       toast({
         title: 'Signup Successful',
         description: 'Your account has been created.',
@@ -58,12 +82,13 @@ export default function SignupPage() {
       });
     }
   };
-  
+
   const handleGoogleSignIn = async () => {
     if (!auth) return;
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      await createUserProfile(result.user);
       toast({
         title: 'Sign-in Successful',
         description: 'Welcome!',
@@ -97,7 +122,7 @@ export default function SignupPage() {
                 placeholder="m@example.com"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
@@ -107,7 +132,7 @@ export default function SignupPage() {
                 type="password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
@@ -117,7 +142,7 @@ export default function SignupPage() {
                 type="password"
                 required
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={e => setConfirmPassword(e.target.value)}
               />
             </div>
           </CardContent>
@@ -125,7 +150,7 @@ export default function SignupPage() {
             <Button type="submit" className="w-full">
               Create account
             </Button>
-             <Button
+            <Button
               variant="outline"
               className="w-full"
               type="button"

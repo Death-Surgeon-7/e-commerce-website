@@ -2,6 +2,7 @@ import { useContext } from 'react';
 
 import useUser from './auth/use-user';
 import { FirebaseClientProvider } from './client-provider';
+import useDoc from './firestore/use-doc';
 import {
   FirebaseContext,
   FirebaseContextValue,
@@ -24,4 +25,4 @@ export function useFirestore() {
   return useFirebase()?.firestore;
 }
 
-export { useUser, FirebaseProvider, FirebaseClientProvider };
+export { useUser, useDoc, FirebaseProvider, FirebaseClientProvider };

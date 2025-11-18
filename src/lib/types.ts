@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface Category {
   id: string;
   name: string;
@@ -21,4 +23,12 @@ export interface Testimonial {
   title: string;
   quote: string;
   avatar: string;
+}
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string | null;
+  photoURL: string | null;
+  createdAt: Timestamp;
 }
