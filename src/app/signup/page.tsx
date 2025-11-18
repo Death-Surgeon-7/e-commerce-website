@@ -7,6 +7,7 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  updateProfile,
   User,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -40,8 +41,8 @@ export default function SignupPage() {
     const userProfile: Omit<UserProfile, 'createdAt'> = {
       uid: user.uid,
       email: user.email!,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
+      displayName: user.displayName || null,
+      photoURL: user.photoURL || null,
     };
     await setDoc(userRef, {
       ...userProfile,
