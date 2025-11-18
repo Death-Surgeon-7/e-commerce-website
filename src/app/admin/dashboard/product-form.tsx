@@ -48,6 +48,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
   const [imagePreview, setImagePreview] = React.useState<string | null>(
     product?.image ?? null
   );
+  const [imageFile, setImageFile] = React.useState<File | null>(null);
   const imageInputRef = React.useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -68,37 +69,42 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         },
   });
 
-  const handleImageChange = async (
+  const handleImageChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      setIsUploading(true);
+      setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
-      try {
-        const imageUrl = await uploadImage(file);
-        form.setValue('image', imageUrl, { shouldValidate: true });
-        setImagePreview(imageUrl);
-      } catch (error) {
-        console.error('Image upload failed:', error);
-        form.setError('image', {
-          type: 'manual',
-          message: 'Image upload failed. Please try again.',
-        });
-        setImagePreview(product?.image ?? null);
-      } finally {
-        setIsUploading(false);
-      }
+      // Set a temporary value for the image field to pass validation
+      form.setValue('image', 'temp-image-value', { shouldValidate: true });
     }
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (product) {
-      await updateProduct(product.id, values);
-    } else {
-      await addProduct(values);
+    setIsUploading(true);
+    let imageUrl = product?.image ?? '';
+
+    try {
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
+
+      const finalValues = { ...values, image: imageUrl };
+
+      if (product) {
+        await updateProduct(product.id, finalValues);
+      } else {
+        await addProduct(finalValues);
+      }
+      
+      onSuccess?.();
+    } catch (error) {
+      console.error('Failed to save product:', error);
+      // Optionally show a toast error to the user
+    } finally {
+      setIsUploading(false);
     }
-    onSuccess?.();
   }
 
   const isSubmitting = form.formState.isSubmitting || isUploading;
@@ -125,7 +131,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
                     ) : (
                       <Upload className="w-8 h-8 text-muted-foreground" />
                     )}
-                    {isUploading && (
+                    {isUploading && !form.formState.isSubmitting && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <Loader2 className="w-6 h-6 text-white animate-spin" />
                       </div>
