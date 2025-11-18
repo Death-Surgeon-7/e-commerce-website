@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminLayout({
   children,
@@ -13,11 +14,12 @@ export default function AdminLayout({
 }) {
   const user = useUser();
   const router = useRouter();
+  const { toast } = useToast();
   const [userProfile, loadingProfile] = useDoc<UserProfile>(
     'users',
     user?.uid || ' '
   );
-  
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -35,12 +37,15 @@ export default function AdminLayout({
     if (userProfile && userProfile.role === 'admin') {
       setIsAdmin(true);
     } else {
+      toast({
+        variant: 'destructive',
+        title: 'Unauthorized',
+        description: 'You do not have permission to access this page.',
+      });
       router.push('/');
     }
     setLoading(false);
-
-  }, [user, userProfile, loadingProfile, router]);
-
+  }, [user, userProfile, loadingProfile, router, toast]);
 
   if (loading) {
     return (
