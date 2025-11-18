@@ -17,7 +17,10 @@ function useCollection<T>(path: string, q?: Query): [T[], boolean] {
   const firestore = useFirestore();
 
   useEffect(() => {
-    if (!firestore) return;
+    if (!firestore) {
+      setLoading(false);
+      return;
+    }
 
     const collectionRef = collection(firestore, path);
     const finalQuery = q || query(collectionRef);
