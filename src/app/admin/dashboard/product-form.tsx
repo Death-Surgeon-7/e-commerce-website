@@ -82,16 +82,24 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsUploading(true);
     let imageUrl = product?.image ?? '';
 
-    try {
-      if (imageFile) {
+    if (imageFile) {
+      setIsUploading(true);
+      try {
         imageUrl = await uploadImage(imageFile);
+      } catch (error) {
+        console.error('Image upload failed:', error);
+        setIsUploading(false);
+        // Optionally show an error toast
+        return; 
       }
+      setIsUploading(false);
+    }
+    
+    const finalValues = { ...values, image: imageUrl };
 
-      const finalValues = { ...values, image: imageUrl };
-
+    try {
       if (product) {
         await updateProduct(product.id, finalValues);
       } else {
@@ -102,8 +110,6 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
     } catch (error) {
       console.error('Failed to save product:', error);
       // Optionally show a toast error to the user
-    } finally {
-      setIsUploading(false);
     }
   }
 
@@ -131,7 +137,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
                     ) : (
                       <Upload className="w-8 h-8 text-muted-foreground" />
                     )}
-                    {isUploading && !form.formState.isSubmitting && (
+                    {isUploading && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <Loader2 className="w-6 h-6 text-white animate-spin" />
                       </div>

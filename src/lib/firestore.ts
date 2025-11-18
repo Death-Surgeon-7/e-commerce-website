@@ -31,13 +31,14 @@ export const addProduct = (product: Omit<Product, 'id'>) => {
     ...product,
     createdAt: serverTimestamp(),
   };
-  addDoc(productsCollection, newProductData).catch((serverError) => {
+  return addDoc(productsCollection, newProductData).catch((serverError) => {
     const permissionError = new FirestorePermissionError({
       path: productsCollection.path,
       operation: 'create',
       requestResourceData: newProductData,
     });
     errorEmitter.emit('permission-error', permissionError);
+    throw serverError;
   });
 };
 
@@ -50,23 +51,25 @@ export const updateProduct = (
     ...product,
     updatedAt: serverTimestamp(),
   };
-  updateDoc(productDoc, updatedProductData).catch((serverError) => {
+  return updateDoc(productDoc, updatedProductData).catch((serverError) => {
     const permissionError = new FirestorePermissionError({
       path: productDoc.path,
       operation: 'update',
       requestResourceData: updatedProductData,
     });
     errorEmitter.emit('permission-error', permissionError);
+    throw serverError;
   });
 };
 
 export const deleteProduct = (id: string) => {
   const productDoc = doc(firestore, 'products', id);
-  deleteDoc(productDoc).catch((serverError) => {
+  return deleteDoc(productDoc).catch((serverError) => {
     const permissionError = new FirestorePermissionError({
       path: productDoc.path,
       operation: 'delete',
     });
     errorEmitter.emit('permission-error', permissionError);
+    throw serverError;
   });
 };
