@@ -127,7 +127,12 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
             <FormItem>
               <FormLabel>Discount Price</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Discount price" {...field} />
+                <Input
+                  type="number"
+                  placeholder="Discount price"
+                  {...field}
+                  value={field.value ?? ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
