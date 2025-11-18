@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,9 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { addProduct, updateProduct } from '@/lib/firestore';
+import { addProduct, updateProduct, uploadImage } from '@/lib/firestore';
 import { Product } from '@/lib/types';
 import { categories } from '@/lib/data';
+import React from 'react';
+import Image from 'next/image';
+import { Loader2, Upload } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -40,6 +44,12 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ product, onSuccess }: ProductFormProps) {
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(
+    product?.image ?? null
+  );
+  const imageInputRef = React.useRef<HTMLInputElement>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: product
@@ -58,6 +68,30 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         },
   });
 
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsUploading(true);
+      setImagePreview(URL.createObjectURL(file));
+      try {
+        const imageUrl = await uploadImage(file);
+        form.setValue('image', imageUrl, { shouldValidate: true });
+        setImagePreview(imageUrl);
+      } catch (error) {
+        console.error('Image upload failed:', error);
+        form.setError('image', {
+          type: 'manual',
+          message: 'Image upload failed. Please try again.',
+        });
+        setImagePreview(product?.image ?? null);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (product) {
       await updateProduct(product.id, values);
@@ -67,9 +101,59 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
     onSuccess?.();
   }
 
+  const isSubmitting = form.formState.isSubmitting || isUploading;
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="image"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product Image</FormLabel>
+              <FormControl>
+                <div className="flex items-center gap-4">
+                  <div className="relative w-24 h-24 rounded-md border flex items-center justify-center bg-muted overflow-hidden">
+                    {imagePreview ? (
+                      <Image
+                        src={imagePreview}
+                        alt="Product preview"
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <Upload className="w-8 h-8 text-muted-foreground" />
+                    )}
+                    {isUploading && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-white animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => imageInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    {imagePreview ? 'Change Image' : 'Upload Image'}
+                  </Button>
+                  <input
+                    type="file"
+                    ref={imageInputRef}
+                    onChange={handleImageChange}
+                    className="hidden"
+                    accept="image/png, image/jpeg, image/gif"
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="name"
@@ -107,51 +191,41 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="Price" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="discount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Discount Price</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Discount price"
-                  {...field}
-                  value={field.value ?? ''}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Image</FormLabel>
-              <FormControl>
-                <Input placeholder="Image ID" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex space-x-4">
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Price" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="discount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Discount Price (Optional)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Discount price"
+                    {...field}
+                    value={field.value ?? ''}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="rating"
@@ -185,7 +259,8 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           />
         </div>
 
-        <Button type="submit">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {product ? 'Update Product' : 'Create Product'}
         </Button>
       </form>

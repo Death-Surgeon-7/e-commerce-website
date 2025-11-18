@@ -89,7 +89,7 @@ export default function DashboardPage() {
           </DialogTrigger>
         </div>
 
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
               {selectedProduct ? 'Edit Product' : 'Add Product'}
@@ -148,11 +148,13 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => {
               const placeholder = getPlaceholderImage(product.image);
+              const imageUrl = product.image.startsWith('https://') ? product.image : placeholder?.imageUrl ?? '/placeholder.svg';
+
               return (
                 <Card key={product.id}>
                   <CardHeader className="p-0 relative">
                     <Image
-                      src={placeholder?.imageUrl ?? '/placeholder.svg'}
+                      src={imageUrl}
                       alt={product.name}
                       width={400}
                       height={500}

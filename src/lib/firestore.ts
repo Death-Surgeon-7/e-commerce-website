@@ -9,13 +9,22 @@ import {
 } from 'firebase/firestore';
 import { firebaseApp } from '@/firebase/config';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Product } from './types';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 const firestore = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
 
 const productsCollection = collection(firestore, 'products');
+
+export const uploadImage = async (file: File): Promise<string> => {
+  const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
+  await uploadBytes(storageRef, file);
+  const downloadURL = await getDownloadURL(storageRef);
+  return downloadURL;
+};
 
 export const addProduct = (product: Omit<Product, 'id'>) => {
   const newProductData = {
