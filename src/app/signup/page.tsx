@@ -25,7 +25,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Chrome, Loader2 } from 'lucide-react';
-import { UserProfile } from '@/lib/types';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { errorEmitter } from '@/firebase/error-emitter';
 
@@ -37,6 +36,7 @@ export default function SignupPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
 
   const createUserProfile = async (user: User) => {
     if (!firestore) return;
@@ -46,22 +46,20 @@ export default function SignupPage() {
     const userProfileData = {
       uid: user.uid,
       email: user.email!,
-      displayName: user.displayName || null,
-      photoURL: user.photoURL || null,
+      displayName: user.displayName || user.email,
+      photoURL: user.photoURL,
       role: isAdmin ? 'admin' : 'customer',
       createdAt: serverTimestamp(),
     };
 
-    try {
-      await setDoc(userRef, userProfileData);
-    } catch (serverError) {
+    setDoc(userRef, userProfileData, { merge: true }).catch((serverError) => {
       const permissionError = new FirestorePermissionError({
         path: userRef.path,
         operation: 'create',
         requestResourceData: userProfileData,
       });
       errorEmitter.emit('permission-error', permissionError);
-    }
+    });
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -108,9 +106,6 @@ export default function SignupPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      // Check if user profile already exists
-      // This is a simplified check; a more robust solution might use transactions
-      // or check for document existence before setting.
       await createUserProfile(result.user);
       toast({
         title: 'Sign-in Successful',
