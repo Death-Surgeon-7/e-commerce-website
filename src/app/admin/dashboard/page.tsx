@@ -44,6 +44,7 @@ import { deleteProduct } from '@/lib/firestore';
 import { getPlaceholderImage } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 import { categories } from '@/lib/data';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function DashboardPage() {
   const { products, loading } = useProducts();
@@ -99,10 +100,12 @@ export default function DashboardPage() {
                 : 'Add a new product to your store.'}
             </DialogDescription>
           </DialogHeader>
-          <ProductForm
-            product={selectedProduct}
-            onSuccess={() => setOpen(false)}
-          />
+          <ScrollArea className="max-h-[70vh] pr-6">
+            <ProductForm
+              product={selectedProduct}
+              onSuccess={() => setOpen(false)}
+            />
+          </ScrollArea>
         </DialogContent>
       </Dialog>
 
