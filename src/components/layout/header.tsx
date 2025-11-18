@@ -32,6 +32,8 @@ import { useCurrency, currencies } from "@/context/currency-context";
 import { useUser, useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useCart } from "@/context/cart-context";
+import { Badge } from "../ui/badge";
 
 const navLinks = [
   { href: "/products", label: "Products" },
@@ -45,6 +47,7 @@ export default function Header() {
   const { currency, setCurrency } = useCurrency();
   const user = useUser();
   const auth = useAuth();
+  const { cartCount } = useCart();
   
   const handleLogout = async () => {
     if (auth) {
@@ -125,13 +128,22 @@ export default function Header() {
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="ghost" size="icon">
-              <Heart className="h-5 w-5" />
-              <span className="sr-only">Wishlist</span>
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/wishlist">
+                <Heart className="h-5 w-5" />
+                <span className="sr-only">Wishlist</span>
+              </Link>
             </Button>
-            <Button variant="ghost" size="icon">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="sr-only">Cart</span>
+            <Button variant="ghost" size="icon" className="relative" asChild>
+              <Link href="/cart">
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <Badge variant="destructive" className="absolute -right-2 -top-2 h-5 w-5 justify-center rounded-full p-0 text-xs">
+                    {cartCount}
+                  </Badge>
+                )}
+                <span className="sr-only">Cart</span>
+              </Link>
             </Button>
             
             {user ? (

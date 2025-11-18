@@ -32,3 +32,12 @@ export interface UserProfile {
   photoURL: string | null;
   createdAt: Timestamp;
 }
+
+export interface CartItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  name: string;
+  image: string;
+}
