@@ -10,30 +10,54 @@ import {
 import { firebaseApp } from '@/firebase/config';
 import { getFirestore } from 'firebase/firestore';
 import { Product } from './types';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const firestore = getFirestore(firebaseApp);
 
 const productsCollection = collection(firestore, 'products');
 
-export const addProduct = async (product: Omit<Product, 'id'>) => {
-  await addDoc(productsCollection, {
+export const addProduct = (product: Omit<Product, 'id'>) => {
+  const newProductData = {
     ...product,
     createdAt: serverTimestamp(),
+  };
+  addDoc(productsCollection, newProductData).catch((serverError) => {
+    const permissionError = new FirestorePermissionError({
+      path: productsCollection.path,
+      operation: 'create',
+      requestResourceData: newProductData,
+    });
+    errorEmitter.emit('permission-error', permissionError);
   });
 };
 
-export const updateProduct = async (
+export const updateProduct = (
   id: string,
   product: Partial<Omit<Product, 'id'>>
 ) => {
   const productDoc = doc(firestore, 'products', id);
-  await updateDoc(productDoc, {
+  const updatedProductData = {
     ...product,
     updatedAt: serverTimestamp(),
+  };
+  updateDoc(productDoc, updatedProductData).catch((serverError) => {
+    const permissionError = new FirestorePermissionError({
+      path: productDoc.path,
+      operation: 'update',
+      requestResourceData: updatedProductData,
+    });
+    errorEmitter.emit('permission-error', permissionError);
   });
 };
 
-export const deleteProduct = async (id: string) => {
+export const deleteProduct = (id: string) => {
   const productDoc = doc(firestore, 'products', id);
-  await deleteDoc(productDoc);
+  deleteDoc(productDoc).catch((serverError) => {
+    const permissionError = new FirestorePermissionError({
+      path: productDoc.path,
+      operation: 'delete',
+    });
+    errorEmitter.emit('permission-error', permissionError);
+  });
 };
