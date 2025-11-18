@@ -9,7 +9,7 @@ import {
   signInWithPopup,
   User,
 } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp, getDocs, collection, query, limit } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,10 +38,8 @@ export default function SignupPage() {
   const createUserProfile = async (user: User) => {
     if (!firestore) return;
 
-    // Check if this is the first user
-    const usersQuery = query(collection(firestore, 'users'), limit(1));
-    const usersSnapshot = await getDocs(usersQuery);
-    const isFirstUser = usersSnapshot.empty;
+    // Assign admin role if email matches
+    const isAdmin = user.email === 'gnavneet444@gmail.com';
 
     const userRef = doc(firestore, 'users', user.uid);
     const userProfile: Omit<UserProfile, 'createdAt'> = {
@@ -49,7 +47,7 @@ export default function SignupPage() {
       email: user.email!,
       displayName: user.displayName || null,
       photoURL: user.photoURL || null,
-      role: isFirstUser ? 'admin' : 'customer',
+      role: isAdmin ? 'admin' : 'customer',
     };
     await setDoc(userRef, {
       ...userProfile,
