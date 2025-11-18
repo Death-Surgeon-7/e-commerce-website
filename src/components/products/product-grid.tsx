@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Filter, X } from "lucide-react";
-import { products } from "@/lib/data";
 import { Product } from "@/lib/types";
 import ProductCard from "@/components/shared/product-card";
 import ProductFilters from "./product-filters";
@@ -17,8 +16,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "../ui/separator";
+import { useProducts } from "@/hooks/use-products";
+import { Skeleton } from "../ui/skeleton";
 
 export default function ProductGrid() {
+  const { products, loading } = useProducts();
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category");
 
@@ -83,12 +85,12 @@ export default function ProductGrid() {
         break;
       case "newest":
       default:
-        // Assuming products are already sorted by newest, or we could add a date field
+        // Assuming products are already sorted by newest from Firestore, or we could add a date field
         break;
     }
 
     return filtered;
-  }, [selectedCategories, priceRange, selectedRating, sortBy]);
+  }, [products, selectedCategories, priceRange, selectedRating, sortBy]);
   
   const hasActiveFilters = selectedCategories.length > 0 || priceRange[0] !== 0 || priceRange[1] !== 10000 || selectedRating !== 0;
 
@@ -132,7 +134,7 @@ export default function ProductGrid() {
       <div className="md:col-span-3">
         <div className="flex justify-between items-center mb-6">
           <p className="text-muted-foreground">
-            Showing {filteredAndSortedProducts.length} of {products.length} products
+            {loading ? 'Loading...' : `Showing ${filteredAndSortedProducts.length} of ${products.length} products`}
           </p>
 
            {/* Mobile Filters Trigger */}
@@ -173,7 +175,19 @@ export default function ProductGrid() {
           </Select>
         </div>
         
-        {filteredAndSortedProducts.length > 0 ? (
+        {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="space-y-4">
+                        <Skeleton className="h-[400px] w-full" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        ) : filteredAndSortedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAndSortedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
