@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -46,7 +47,7 @@ interface ProductFormProps {
 export function ProductForm({ product, onSuccess }: ProductFormProps) {
   const [isUploading, setIsUploading] = React.useState(false);
   const [imagePreview, setImagePreview] = React.useState<string | null>(
-    product?.image ?? null
+    product?.image || null
   );
   const [imageFile, setImageFile] = React.useState<File | null>(null);
   const imageInputRef = React.useRef<HTMLInputElement>(null);
@@ -69,6 +70,12 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         },
   });
 
+  React.useEffect(() => {
+    if (product?.image) {
+      setImagePreview(product.image);
+    }
+  }, [product]);
+
   const handleImageChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -77,24 +84,23 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
       // Set a temporary value for the image field to pass validation
-      form.setValue('image', 'temp-image-value', { shouldValidate: true });
+      form.setValue('image', file.name, { shouldValidate: true });
     }
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsUploading(true);
     let imageUrl = product?.image ?? '';
 
     if (imageFile) {
-      setIsUploading(true);
       try {
         imageUrl = await uploadImage(imageFile);
       } catch (error) {
         console.error('Image upload failed:', error);
-        setIsUploading(false);
         // Optionally show an error toast
+        setIsUploading(false);
         return;
       }
-      setIsUploading(false);
     }
 
     const finalValues = { ...values, image: imageUrl };
@@ -110,6 +116,8 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
     } catch (error) {
       console.error('Failed to save product:', error);
       // Optionally show a toast error to the user
+    } finally {
+        setIsUploading(false);
     }
   }
 
