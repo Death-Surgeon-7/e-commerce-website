@@ -92,11 +92,11 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         console.error('Image upload failed:', error);
         setIsUploading(false);
         // Optionally show an error toast
-        return; 
+        return;
       }
       setIsUploading(false);
     }
-    
+
     const finalValues = { ...values, image: imageUrl };
 
     try {
@@ -105,7 +105,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
       } else {
         await addProduct(finalValues);
       }
-      
+
       onSuccess?.();
     } catch (error) {
       console.error('Failed to save product:', error);
