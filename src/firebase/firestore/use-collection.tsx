@@ -46,9 +46,9 @@ function useCollection<T>(path: string, q?: Query): [T[], boolean] {
       },
       (error: FirestoreError) => {
         const permissionError = new FirestorePermissionError({
-            path: (finalQuery as Query).path,
-            operation: 'list',
-          });
+          path: (finalQuery as any)._query.path.segments.join('/'),
+          operation: 'list',
+        });
         errorEmitter.emit('permission-error', permissionError);
         setLoading(false);
       }
