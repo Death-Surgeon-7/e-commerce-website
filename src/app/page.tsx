@@ -1,3 +1,4 @@
+"use client";
 import CategoriesSection from "@/components/home/categories-section";
 import HeroSection from "@/components/home/hero-section";
 import TestimonialsSection from "@/components/home/testimonials-section";
