@@ -1,10 +1,10 @@
 'use client';
 
-import { useUser, useFirestore } from '@/firebase';
+import { useUser, useDoc } from '@/firebase';
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { UserProfile } from '@/lib/types';
 
 export default function AdminLayout({
   children,
@@ -12,27 +12,35 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const user = useUser();
-  const firestore = useFirestore();
   const router = useRouter();
+  const [userProfile, loadingProfile] = useDoc<UserProfile>(
+    'users',
+    user?.uid || ' '
+  );
+  
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user && firestore) {
-      const checkAdmin = async () => {
-        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-        if (userDoc.exists() && userDoc.data().role === 'admin') {
-          setIsAdmin(true);
-        } else {
-          router.push('/');
-        }
-        setLoading(false);
-      };
-      checkAdmin();
-    } else if (!user && firestore) {
-      router.push('/login');
+    if (loadingProfile) {
+      setLoading(true);
+      return;
     }
-  }, [user, firestore, router]);
+
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    if (userProfile && userProfile.role === 'admin') {
+      setIsAdmin(true);
+    } else {
+      router.push('/');
+    }
+    setLoading(false);
+
+  }, [user, userProfile, loadingProfile, router]);
+
 
   if (loading) {
     return (
