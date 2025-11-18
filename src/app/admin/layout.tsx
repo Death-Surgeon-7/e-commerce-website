@@ -33,8 +33,9 @@ export default function AdminLayout({
       router.push('/login');
       return;
     }
-
-    if (userProfile && userProfile.role === 'admin') {
+    
+    // Grant admin access if the role is 'admin' or if the email is the hardcoded admin email.
+    if ((userProfile && userProfile.role === 'admin') || user.email === 'gnavneet444@gmail.com') {
       setIsAdmin(true);
     } else {
       toast({
