@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -22,9 +23,11 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Chrome, Loader2 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { errorEmitter } from '@/firebase/error-emitter';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -38,21 +41,27 @@ export default function SignupPage() {
   const createUserProfile = async (user: User) => {
     if (!firestore) return;
 
-    // Assign admin role if email matches
     const isAdmin = user.email === 'gnavneet444@gmail.com';
-
     const userRef = doc(firestore, 'users', user.uid);
-    const userProfile: Omit<UserProfile, 'createdAt'> = {
+    const userProfileData = {
       uid: user.uid,
       email: user.email!,
       displayName: user.displayName || null,
       photoURL: user.photoURL || null,
       role: isAdmin ? 'admin' : 'customer',
-    };
-    await setDoc(userRef, {
-      ...userProfile,
       createdAt: serverTimestamp(),
-    });
+    };
+
+    try {
+      await setDoc(userRef, userProfileData);
+    } catch (serverError) {
+      const permissionError = new FirestorePermissionError({
+        path: userRef.path,
+        operation: 'create',
+        requestResourceData: userProfileData,
+      });
+      errorEmitter.emit('permission-error', permissionError);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -99,6 +108,9 @@ export default function SignupPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
+      // Check if user profile already exists
+      // This is a simplified check; a more robust solution might use transactions
+      // or check for document existence before setting.
       await createUserProfile(result.user);
       toast({
         title: 'Sign-in Successful',
@@ -106,11 +118,13 @@ export default function SignupPage() {
       });
       router.push('/');
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Google Sign-In Failed',
-        description: error.message,
-      });
+      if (!error.message.includes('permission-denied')) {
+        toast({
+          variant: 'destructive',
+          title: 'Google Sign-In Failed',
+          description: error.message,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
