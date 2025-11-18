@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { CurrencyProvider } from '@/context/currency-context';
+import { FirebaseClientProvider } from '@/firebase';
 
 const fontPoppins = Poppins({
   subsets: ['latin'],
@@ -38,14 +39,16 @@ export default function RootLayout({
           fontPTSans.variable
         )}
       >
-        <CurrencyProvider>
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
-        </CurrencyProvider>
+        <FirebaseClientProvider>
+          <CurrencyProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+            <Toaster />
+          </CurrencyProvider>
+        </FirebaseClientProvider>
       </body>
     </html>
   );
