@@ -7,7 +7,6 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  updateProfile,
   User,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -24,13 +23,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Chrome } from 'lucide-react';
+import { Chrome, Loader2 } from 'lucide-react';
 import { UserProfile } from '@/lib/types';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
@@ -52,7 +52,8 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) return;
+    if (!auth || !firestore) return;
+    setIsLoading(true);
 
     if (password !== confirmPassword) {
       toast({
@@ -60,6 +61,7 @@ export default function SignupPage() {
         title: 'Signup Failed',
         description: 'Passwords do not match.',
       });
+      setIsLoading(false);
       return;
     }
 
@@ -81,14 +83,20 @@ export default function SignupPage() {
         title: 'Signup Failed',
         description: error.message,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    if (!auth) return;
+    if (!auth || !firestore) return;
+    setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
+      // Check if user profile already exists
+      // This is a simplification. In a real app, you might want to merge data
+      // or handle this case more gracefully. For now, we'll just create it.
       await createUserProfile(result.user);
       toast({
         title: 'Sign-in Successful',
@@ -101,8 +109,18 @@ export default function SignupPage() {
         title: 'Google Sign-In Failed',
         description: error.message,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (!auth || !firestore) {
+    return (
+      <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center py-12">
@@ -124,6 +142,7 @@ export default function SignupPage() {
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div className="grid gap-2">
@@ -134,6 +153,7 @@ export default function SignupPage() {
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div className="grid gap-2">
@@ -144,11 +164,13 @@ export default function SignupPage() {
                 required
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create account
             </Button>
             <Button
@@ -156,6 +178,7 @@ export default function SignupPage() {
               className="w-full"
               type="button"
               onClick={handleGoogleSignIn}
+              disabled={isLoading}
             >
               <Chrome className="mr-2 h-4 w-4" />
               Sign up with Google
