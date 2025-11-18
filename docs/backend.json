@@ -27,7 +27,12 @@
           "type": "string",
           "format": "date-time",
           "description": "The timestamp when the user profile was created."
-        }
+        },
+        "role": {
+            "type": "string",
+            "description": "The user's role.",
+            "enum": ["customer", "admin"]
+          }
       },
       "required": ["uid", "email", "createdAt"]
     },
@@ -58,7 +63,43 @@
         }
       },
       "required": ["productId", "quantity", "price", "name", "image"]
-    }
+    },
+    "Product": {
+        "title": "Product",
+        "description": "Represents a product in the store.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the product."
+          },
+          "price": {
+            "type": "number",
+            "description": "The price of the product."
+          },
+          "discount": {
+            "type": "number",
+            "description": "The discounted price of the product."
+          },
+          "category": {
+            "type": "string",
+            "description": "The category of the product."
+          },
+          "image": {
+            "type": "string",
+            "description": "The image ID of the product."
+          },
+          "rating": {
+            "type": "number",
+            "description": "The rating of the product."
+          },
+          "reviews": {
+            "type": "number",
+            "description": "The number of reviews for the product."
+          }
+        },
+        "required": ["name", "price", "category", "image", "rating", "reviews"]
+      }
   },
   "auth": {
     "providers": ["google.com", "password"]
@@ -75,6 +116,12 @@
         "$ref": "#/entities/CartItem"
       },
       "description": "Stores the items in a user's shopping cart."
+    },
+    "/products/{productId}": {
+      "schema": {
+        "$ref": "#/entities/Product"
+      },
+      "description": "Stores all products available in the store."
     }
   }
 }
