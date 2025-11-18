@@ -4,7 +4,7 @@
 
 import { initializeApp, getApp, getApps } from 'firebase/app';
 
-const firebaseConfig = {"apiKey":"AIzaSyDiSS4Mms4tOFNTTbr2KEi1J49tC_912fU","authDomain":"fair-future-477412-e5.firebaseapp.com","projectId":"fair-future-477412-e5","storageBucket":"fair-future-477412-e5.appspot.com","messagingSenderId":"492348575003","appId":"1:492348575003:web:011a0d33e54b6d4b4a1b02","measurementId":"G-1521TSE93Z"};
+const firebaseConfig = {"apiKey":"AIzaSyCbkTh5KHwrar-OT9lVUT4s94DJzP_7F7M","authDomain":"fair-future-477412-e5.firebaseapp.com","projectId":"fair-future-477412-e5","storageBucket":"fair-future-477412-e5.appspot.com","messagingSenderId":"949447084445","appId":"1:949447084445:web:2fe8ec1d77af1b50e60774","measurementId":""};
 
 function initializeFirebase() {
   if (getApps().length > 0) {
